@@ -4,6 +4,8 @@ result
 
 # Development
 .direnv
+sample-pr-body.md
+update_output.txt
 
 # Current SD Contents
 *.current-sd
