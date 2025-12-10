@@ -13,6 +13,11 @@
       url = "github:nix-community/nix-github-actions";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
@@ -80,7 +85,19 @@
           ;
       };
 
-      formatter = pkgs.nixpkgs-fmt;
+      treefmt = {
+        programs = {
+          nixpkgs-fmt.enable = true;
+          cljfmt.enable = true;
+          shellcheck = {
+            enable = true;
+            excludes = [
+              ".envrc"
+            ];
+          };
+          prettier.enable = true;
+        };
+      };
 
       devShells.default = pkgs.mkShell {
         name = "frc-nix";

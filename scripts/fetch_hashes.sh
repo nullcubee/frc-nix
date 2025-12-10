@@ -1,4 +1,5 @@
 #!/usr/bin/env -S nix shell nixpkgs#bun nixpkgs#nix-prefetch-git --command bash
+# shellcheck shell=bash
 
 branch="release"
 native_version="2025.3.2"
