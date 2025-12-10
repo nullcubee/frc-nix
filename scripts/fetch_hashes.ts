@@ -161,7 +161,8 @@ async function fetchHashes() {
         // Special case for windowsx86-64
         if (file.uri.includes("linuxx86-64")) platform = "linuxx86-64";
         else if (tool === "RobotBuilder") platform = "all";
-        else if (file.uri.includes("windows") || file.uri.includes("win")) continue;
+        else if (file.uri.includes("windows") || file.uri.includes("win"))
+          continue;
 
         const matches = data.checksums.sha256.match(/.{1,2}/g);
         if (!matches) continue;
