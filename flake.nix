@@ -47,13 +47,10 @@
             inherit system;
             overlays = [ inputs.self.overlays.default ];
           };
-          inherit (pkgs) lib;
         in
         {
           # Packages exposed through flake outputs
-          packages = lib.attrsets.filterAttrs
-            (_: pkg: builtins.elem system pkg.meta.platforms)
-            {
+          packages = {
               inherit (pkgs)
                 advantagescope
                 choreo
