@@ -4,7 +4,10 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    flake-utils.url = "github:numtide/flake-utils";
+    flake-parts = {
+      url = "github:hercules-ci/flake-parts";
+      inputs.nixpkgs-lib.follows = "nixpkgs";
+    };
 
     nix-github-actions = {
       url = "github:nix-community/nix-github-actions";
@@ -12,18 +15,21 @@
     };
   };
 
-  outputs = inputs:
-    let
-      supportedSystems = [
-        "x86_64-linux"
-        "aarch64-linux"
-        "armv7l-linux"
-        "armv6l-linux"
-        "x86_64-darwin"
-        "aarch64-darwin"
-      ];
-    in
-    {
+  outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
+    imports = [
+      inputs.treefmt-nix.flakeModule
+    ];
+
+    systems = [
+      "x86_64-linux"
+      "aarch64-linux"
+      "armv7l-linux"
+      "armv6l-linux"
+      "x86_64-darwin"
+      "aarch64-darwin"
+    ];
+
+    flake = {
       githubActions = inputs.nix-github-actions.lib.mkGithubMatrix {
         checks = inputs.nixpkgs.lib.getAttrs [ "x86_64-linux" ] inputs.self.packages;
       };
@@ -38,53 +44,51 @@
 
         vscode-extensions = prev.vscode-extensions // { wpilibsuite.vscode-wpilib = final.wpilib.vscode-wpilib; };
       };
-    }
-    //
-    (inputs.flake-utils.lib.eachSystem supportedSystems
-      (system:
-        let
-          pkgs = import inputs.nixpkgs {
-            inherit system;
-            overlays = [ inputs.self.overlays.default ];
-          };
-          inherit (pkgs) lib;
-        in
-        {
-          # Packages exposed through flake outputs
-          packages = lib.attrsets.filterAttrs
-            (_: pkg: builtins.elem system pkg.meta.platforms)
-            {
-              inherit (pkgs)
-                advantagescope
-                choreo
-                elastic-dashboard
-                pathplanner
-                frc-nix-update
-                ;
-              inherit (pkgs.wpilib)
-                datalogtool
-                glass
-                outlineviewer
-                pathweaver
-                roborioteamnumbersetter
-                robotbuilder
-                shuffleboard
-                smartdashboard
-                sysid
-                wpical
-                vscode-wpilib
-                wpilib-utility
-                ;
-            };
+    };
 
-          formatter = pkgs.nixpkgs-fmt;
+    perSystem = { pkgs, system, ... }: {
+      _module.args.pkgs = import inputs.nixpkgs {
+        inherit system;
+        overlays = [
+          inputs.self.overlays.default
+        ];
+        config = { };
+      };
 
-          devShell = pkgs.mkShell {
-            name = "frc-nix";
-            packages = with pkgs; [
-              nushell
-              frc-nix-update
-            ];
-          };
-        }));
+      # Packages exposed through flake outputs
+      packages = {
+        inherit (pkgs)
+          advantagescope
+          choreo
+          elastic-dashboard
+          pathplanner
+          frc-nix-update
+          ;
+        inherit (pkgs.wpilib)
+          datalogtool
+          glass
+          outlineviewer
+          pathweaver
+          roborioteamnumbersetter
+          robotbuilder
+          shuffleboard
+          smartdashboard
+          sysid
+          wpical
+          vscode-wpilib
+          wpilib-utility
+          ;
+      };
+
+      formatter = pkgs.nixpkgs-fmt;
+
+      devShells.default = pkgs.mkShell {
+        name = "frc-nix";
+        packages = with pkgs; [
+          nushell
+          frc-nix-update
+        ];
+      };
+    };
+  };
 }
