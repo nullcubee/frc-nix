@@ -25,6 +25,7 @@ let
     npmDepsHash = "sha256-jzbys0JkPA5zaay7me+IpuxUAKxF5kfzTRfrPx9eeq8=";
     buildInputs = [ libsecret ];
     nativeBuildInputs = [ pkg-config ];
+    # npmBuildScript = "packageLinux";
     dontNpmBuild = true;
   };
 in
