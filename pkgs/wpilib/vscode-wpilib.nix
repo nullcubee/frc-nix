@@ -20,16 +20,10 @@ vscode-utils.buildVscodeExtension rec {
   vscodeExtUniqueId = "wpilibsuite.vscode-wpilib-${version}";
 
   # Package metadata
-  meta = with lib; {
+  meta = {
     description = "Visual Studio Code WPILib extension";
     homepage = "https://github.com/wpilibsuite/vscode-wpilib";
-    license = licenses.bsd3;
-    platforms = [
-      "x86_64-linux"
-      "x86_64-darwin"
-      "aarch64-darwin"
-      "aarch64-linux"
-      "armv7l-linux"
-    ];
+    license = lib.licenses.bsd3;
+    platforms = lib.platforms.all;
   };
 }
