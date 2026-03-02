@@ -1,23 +1,45 @@
 {
-  vscode-utils,
-  fetchurl,
   lib,
+  buildNpmPackage,
+  fetchFromGitHub,
+  vscode-utils,
+  pkg-config,
+  libsecret,
 }:
-vscode-utils.buildVscodeExtension rec {
+let
+  pname = "vscode-wpilib";
   version = "2026.2.1";
+  vscodeExtPublisher = "wpilibsuite";
 
-  pname = "${vscodeExtPublisher}-${vscodeExtName}";
-  name = "${vscodeExtPublisher}-${vscodeExtName}-${version}";
-
-  src = fetchurl {
-    url = "https://github.com/wpilibsuite/vscode-wpilib/releases/download/v${version}/vscode-wpilib-${version}.vsix";
-    hash = "sha256-Qj9CHQk8ODZiILGEbhBdBl5wLpAf9RsYa7avYT4ns7Y=";
+  src = fetchFromGitHub {
+    owner = "wpilibsuite";
+    repo = "vscode-wpilib";
+    rev = "v${version}";
+    hash = "sha256-RB8oA+KvB1Lcd8parD4xfjxPyaHp1VY+5uKqxbYdVKI=";
   };
 
-  # VSCode Metadata
-  vscodeExtPublisher = "wpilibsuite";
-  vscodeExtName = "vscode-wpilib";
-  vscodeExtUniqueId = "wpilibsuite.vscode-wpilib-${version}";
+  vsix = buildNpmPackage {
+    name = "${pname}-${version}.vsix";
+    inherit version;
+    src = "${src}/vscode-wpilib";
+    npmDepsHash = "sha256-jzbys0JkPA5zaay7me+IpuxUAKxF5kfzTRfrPx9eeq8=";
+    buildInputs = [ libsecret ];
+    nativeBuildInputs = [ pkg-config ];
+    dontNpmBuild = true;
+  };
+in
+vscode-utils.buildVscodeExtension {
+  inherit
+    pname
+    version
+    vscodeExtPublisher
+    vsix
+    ;
+
+  vscodeExtUniqueId = "${vscodeExtPublisher}.${pname}";
+  vscodeExtName = "${pname}";
+
+  src = vsix;
 
   # Package metadata
   meta = {
