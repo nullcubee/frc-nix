@@ -6,6 +6,8 @@
   libsecret,
   nodejs_20,
   fetchpatch2,
+  fetchurl,
+  unzip,
 }:
 buildNpmPackage (finalAttrs: {
   pname = "wpilib-vscode-vsix";
@@ -35,8 +37,27 @@ buildNpmPackage (finalAttrs: {
   patchFlags = [ "-p2" ];
 
   buildInputs = [ libsecret ];
-  nativeBuildInputs = [ pkg-config ];
+  nativeBuildInputs = [
+    pkg-config
+    unzip
+  ];
   nodejs = nodejs_20;
+
+  # HACK: gradle is a pain to use inside of nix, so we just nab the existing
+  # vsix, extract it, and grab the resources folder from it for our built
+  # extension.
+  resources-vsix = fetchurl {
+    url = "https://github.com/wpilibsuite/vscode-wpilib/releases/download/v${finalAttrs.version}/vscode-wpilib-${finalAttrs.version}.vsix";
+    hash = "sha256-Qj9CHQk8ODZiILGEbhBdBl5wLpAf9RsYa7avYT4ns7Y=";
+    name = "vscode-wpilib-${finalAttrs.version}.zip";
+  };
+  preBuild = ''
+    mkdir ./resources-vsix
+    unzip ${finalAttrs.resources-vsix} -d ./resources-vsix
+    rm -rf ./resources
+    cp -r ./resources-vsix/extension/resources ./resources/
+    rm -rf ./resources-vsix
+  '';
 
   dontNpmBuild = true;
   buildPhase = ''
