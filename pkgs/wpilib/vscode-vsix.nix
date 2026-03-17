@@ -5,6 +5,7 @@
   pkg-config,
   libsecret,
   nodejs_20,
+  fetchpatch2,
 }:
 buildNpmPackage (finalAttrs: {
   pname = "wpilib-vscode-vsix";
@@ -20,6 +21,18 @@ buildNpmPackage (finalAttrs: {
   sourceRoot = "${finalAttrs.src.name}/vscode-wpilib";
 
   npmDepsHash = "sha256-jzbys0JkPA5zaay7me+IpuxUAKxF5kfzTRfrPx9eeq8=";
+
+  # Fixes project creation, see:
+  # https://github.com/frc4451/frc-nix/issues/64
+  # https://github.com/wpilibsuite/vscode-wpilib/pull/854
+  patches = [
+    (fetchpatch2 {
+      url = "https://patch-diff.githubusercontent.com/raw/wpilibsuite/vscode-wpilib/pull/854.patch";
+      hash = "sha256-JycCb3JVvez4vvtXh9/Lv5R4XfH/HUoh5Le7GKb5x/M=";
+    })
+  ];
+
+  patchFlags = [ "-p2" ];
 
   buildInputs = [ libsecret ];
   nativeBuildInputs = [ pkg-config ];
