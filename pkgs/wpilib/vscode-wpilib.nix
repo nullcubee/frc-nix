@@ -1,29 +1,19 @@
 {
   vscode-utils,
-  allwpilibSources,
-  fetchurl,
   unzip,
   lib,
+  vscode-vsix,
 }:
 vscode-utils.buildVscodeExtension rec {
-  version = "2026.2.1";
+  inherit (vscode-vsix) version;
 
   pname = "${vscodeExtPublisher}-${vscodeExtName}";
   name = "${vscodeExtPublisher}-${vscodeExtName}-${version}";
 
-  src = fetchurl {
-    url = "https://github.com/wpilibsuite/vscode-wpilib/releases/download/v${version}/vscode-wpilib-${version}.vsix";
-    hash = "sha256-Qj9CHQk8ODZiILGEbhBdBl5wLpAf9RsYa7avYT4ns7Y=";
-    # TODO: Once the version of nixpkgs in this flake is updated we should remove
-    # the custom `name` and the `unzip` nativeBuildInput
-    # See: https://github.com/NixOS/nixpkgs/commit/e24a734076ea21365bb618d63f5c9a70006dd196
-
-    # For compatibility older versions of nixpkgs
-    # The `*.vsix` file is in the end a simple zip file. Change the extension
-    # so that existing `unzip` hooks takes care of the unpacking.
-    name = "${name}.zip";
-  };
-
+  # The `*.vsix` file is in the end a simple zip file, so for compatibility
+  # with older versions of nixpkgs, we change the extension to .zip so that the
+  # existing `unzip` hooks can take care of the unpacking.
+  src = "${vscode-vsix}/vscode-wpilib-${version}.zip";
   nativeBuildInputs = [ unzip ];
 
   # VSCode Metadata
