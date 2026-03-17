@@ -1,18 +1,15 @@
 {
   vscode-utils,
-  fetchurl,
   lib,
+  vscode-vsix,
 }:
 vscode-utils.buildVscodeExtension rec {
-  version = "2026.2.1";
+  inherit (vscode-vsix) version;
 
   pname = "${vscodeExtPublisher}-${vscodeExtName}";
   name = "${vscodeExtPublisher}-${vscodeExtName}-${version}";
 
-  src = fetchurl {
-    url = "https://github.com/wpilibsuite/vscode-wpilib/releases/download/v${version}/vscode-wpilib-${version}.vsix";
-    hash = "sha256-Qj9CHQk8ODZiILGEbhBdBl5wLpAf9RsYa7avYT4ns7Y=";
-  };
+  src = "${vscode-vsix}/vscode-wpilib-${version}.vsix";
 
   # VSCode Metadata
   vscodeExtPublisher = "wpilibsuite";
