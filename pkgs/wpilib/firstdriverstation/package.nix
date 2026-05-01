@@ -100,6 +100,7 @@ stdenv.mkDerivation (finalAttrs: {
     icu
     libice
     libsm
+    libx11
     webkitgtk_4_1
   ];
 
