@@ -105,22 +105,26 @@ stdenv.mkDerivation (finalAttrs: {
 
   dontBuild = true;
 
-  installPhase = ''
-    runHook preInstall
+  installPhase =
+    let
+      installPath = "$out/lib/wpilib/firstdriverstation";
+    in
+    ''
+      runHook preInstall
 
-    install -Dm744 ./FirstDriverStation $out/lib/FirstDriverStation
-    install -Dm744 ./libHarfBuzzSharp.so $out/lib/libHarfBuzzSharp.so
-    install -Dm744 ./libSkiaSharp.so $out/lib/libSkiaSharp.so
+      install -Dm744 ./FirstDriverStation ${installPath}/FirstDriverStation
+      install -Dm744 ./libHarfBuzzSharp.so ${installPath}/libHarfBuzzSharp.so
+      install -Dm744 ./libSkiaSharp.so ${installPath}/libSkiaSharp.so
 
-    install -Dm644 ./License.txt $out/share/doc/FirstDriverStation/License.txt
-    install -Dm644 ${./72-hidraw.rules} $out/etc/udev/rules.d/72-hidraw.rules
-    install -Dm644 ${../wpilib_logo.svg} $out/share/icons/hicolor/scalable/apps/FirstDriverStation.svg
+      install -Dm644 ./License.txt $out/share/doc/FirstDriverStation/License.txt
+      install -Dm644 ${./72-hidraw.rules} $out/etc/udev/rules.d/72-hidraw.rules
+      install -Dm644 ${../wpilib_logo.svg} $out/share/icons/hicolor/scalable/apps/FirstDriverStation.svg
 
-    makeWrapper $out/lib/FirstDriverStation $out/bin/FirstDriverStation \
-      --prefix PATH : ${lib.makeBinPath [ dhcpcd ]}
+      makeWrapper ${installPath}/FirstDriverStation $out/bin/FirstDriverStation \
+        --prefix PATH : ${lib.makeBinPath [ dhcpcd ]}
 
-    runHook postInstall
-  '';
+      runHook postInstall
+    '';
 
   desktopItems = [
     (makeDesktopItem rec {
